@@ -10,6 +10,6 @@ sudo systemctl enable mongod
 ```
 # To Check MongoDB Version
 ```
-mongodb --version
+mongod --version
 ```
 # 
