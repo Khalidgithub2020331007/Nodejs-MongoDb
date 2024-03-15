@@ -3,8 +3,9 @@
     npm inti -y
     npm install express
     npm install -D nodemon
-    nodemon index.js # to run index.js file
     npm install mongoose
+    nodemon index.js
+
 
 # Anisul Islam 
 Youtube Link:
