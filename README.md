@@ -12,4 +12,7 @@ sudo systemctl enable mongod
 ```
 mongod --version
 ```
-# 
+# To Stop MongoDB
+```
+sudo service mongod stop
+```
