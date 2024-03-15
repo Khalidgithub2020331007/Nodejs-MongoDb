@@ -1,0 +1,5 @@
+npm inti -y
+npm install express
+npm install -D nodemon
+npm install mongoose
+nodemon index.js 
