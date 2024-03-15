@@ -1,4 +1,11 @@
 # Nodejs-MongoDb
+# Setup Command    
+    npm inti -y
+    npm install express
+    npm install -D nodemon
+    nodemon index.js # to run index.js file
+    npm install mongoose
+
 # Anisul Islam 
 Youtube Link:
 ```
