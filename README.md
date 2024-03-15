@@ -27,3 +27,8 @@ sudo service mongod stop
 ```
 sudo service mongod restart
 ```
+# Remind
+<p>Database --> Database </p>
+<p>Tabel --> Collection</p>
+<p>Row --> Documentation</p>
+<p>Column --> Field</p>
