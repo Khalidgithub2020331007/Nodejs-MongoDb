@@ -82,10 +82,7 @@ const appointmentSchema=new mongoose.Schema({
         required:true,
         
     },
-    prescription:{
-        type:String,
-        required:true
-    },
+    prescription:String,
     appointmentDate:Date,
     status:String,
     rating:Number,
@@ -245,7 +242,7 @@ app.put('/api/patients/:id', async(req, res) => {
                new :true
            });  
            if(updatePatient)
-           res.status(200).send({success:true,message:"Updated Patient",data:updatedProduct});
+           res.status(200).send({success:true,message:"Updated Patient",data:updateProduct});
            else{
                res.status(404).send({
                    message:"No Patient found",
@@ -258,7 +255,7 @@ app.put('/api/patients/:id', async(req, res) => {
    });
    
    
-
+//  Doctor
 // Get a specific doctor
 app.get('/api/doctors/:id',async (req,res)=>{
 
@@ -412,10 +409,25 @@ app.put('/api/doctors/:id',async (req, res) => {
 });
 
 
+// Get Appointment of a Specific
+app.get('/api/appointments/:id',async(req,res)=>
+{
+    const id =req.params.id;
+    const appointment= await Appointment.find({_id:id});
+    res.send(appointment);
+});
 
+// Get Appointment
+app.get('/api/appointments',async(req,res)=>
+{
+    
+    const appointments= await Appointment.find();
+    if(appointments)
 
-
-
+    res.send(appointments);
+    else
+    res.status(404).send({message:"No Data found"});
+});
 
 // Insert an appointment
 app.post('/api/appointments', async(req, res) => {
@@ -424,7 +436,7 @@ app.post('/api/appointments', async(req, res) => {
             patient:req.body.patient,
             doctor:req.body.doctor,
             prescription:req.body.prescription,
-            appointmentDate:req.date.appointmentDate,
+            appointmentDate:req.body.appointmentDate,
             status:req.body.status,
             rating:req.body.rating,
             review:req.body.review,
@@ -442,7 +454,7 @@ app.delete('/api/appointments/:id', async(req, res) => {
 
     try {
         const id =req.params.id;
-        const appointment= await Appointment.deleteOne({_id:id});
+        const appointment= await Appointment.findByIdAndDelete({_id:id});
         if(appointment)
         res.status(200).send({success:true,message:"Deleted Appointment Successfully",data:appointment});
         else
@@ -462,19 +474,19 @@ app.put('/api/appointments/:id', async(req, res) => {
         const patient=req.body.patient;
         const doctor=req.body.doctor;
         const prescription=req.body.prescription;
-        const appointmentDate=req.date.appointmentDate;
+        const appointmentDate=req.body.appointmentDate;
         const status=req.body.status;
         const rating=req.body.rating;
         const review=req.body.review;
         const notes=req.body.notes;
-        const updateAppointment=await Appointment.updateOne({_id:id},
+        const updateAppointment=await Appointment.findByIdAndUpdate({_id:id},
             {
                 $set:
                 {
                     patient:req.body.patient,
                     doctor:req.body.doctor,
                     prescription:req.body.prescription,
-                    appointmentDate:req.date.appointmentDate,
+                    appointmentDate:req.body.appointmentDate,
                     status:req.body.status,
                     rating:req.body.rating,
                     review:req.body.review,
@@ -485,7 +497,7 @@ app.put('/api/appointments/:id', async(req, res) => {
                 new:true
             }
             );
-            if(updateAppointment)res.status(200).send({success:true,message:"Updated Appointment Data",data:updateDoctor});
+            if(updateAppointment)res.status(200).send({success:true,message:"Updated Appointment Data",data:updateAppointment});
             else{
                 res.status(404).send({
                     message:"No Appointment found",
