@@ -1,34 +1,3 @@
-
-Skip to content
-
-    Khalidgithub2020331007
-    /
-    Nodejs-MongoDb
-
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-
-    Settings
-
-Commit
-Delete extra/index.js
-
-    main 
-
-@Khalidgithub2020331007
-Khalidgithub2020331007 committed Mar 17, 2024
-1 parent 7a5f982 commit 0171f3c
-Showing 1 changed file with 0 additions and 255 deletions.
-
-255 changes: 0 additions & 255 deletions 255
-extra/index.js
-@@ -1,255 +0,0 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose=require('mongoose');
@@ -47,32 +16,104 @@ const patientSchema=new mongoose.Schema({
     },
     email:{
         type:String,
-        required:true
+        required:true,
+        unique:true,
     },
     password:{
         type:String,
         required:true
     },
+    contactNumber:String,
+    notification:Boolean,
     height:String,
     weight:Number,
-    age:Number,
     gender:String,
-    contactNumber:String,
-    dateOfBirth:Date
+    dateOfBirth:Date,
+    medicalHistory:String,
+   
+    
+    
 
 
 
 });
 
 
+const doctorSchema=new mongoose.Schema({
+    name:{
+        type:String,
+        required:true
+    },
+    email:{
+        type:String,
+        required:true,
+        unique:true,
+    },
+    password:{
+        type:String,
+        required:true
+    },
+    contactNumber:String,
+    notification:Boolean,
+    height:String,
+    weight:Number,
+    gender:String,
+    adress:String,
+    rating:Number,
+    reviews:String,
+    bmdcRegistrationNumber:String,
+    qualification:String,
+    about:String,
+    medicalSpecialty:String,
+    exprience:Number,
+    appointment:String,
+    dateOfBirth:Date,
+   
+
+});
+
+const appointmentSchema=new mongoose.Schema({
+    patient:{
+        type:String,
+        required:true
+    },
+    doctor:{
+        type:String,
+        required:true,
+        
+    },
+    prescription:{
+        type:String,
+        required:true
+    },
+    appointmentDate:Date,
+    status:String,
+    rating:Number,
+    review:String,
+    notes:String,
+   
+});
+
+const prescriptionSchema=new mongoose.Schema({
+    appointment:{
+        type:String,
+        required:true
+    },
+    problem:String,
+    medications:String,
+    diagnosis:String,
+    advice:String,
+   
+});
+
 
 const connectDB= async()=>
 {
     try {
-        await mongoose.connect('mongodb://localhost:27017/testApp');
+        await mongoose.connect('mongodb://localhost:27017/doctorApp');
         console.log("Khalid Successfully connect with mongodb at ",new Date().toLocaleString());
 
-
+        
     } catch (error) {
          console.log("DB is not Connected ",error);
         process.exit(1);
@@ -80,34 +121,56 @@ const connectDB= async()=>
 };
 
 const Patient=mongoose.model("Patients",patientSchema);
+const Doctor=mongoose.model("Doctors",doctorSchema);
+const Appointment=mongoose.model("Appointments",appointmentSchema);
+const prescription=mongoose.model("Prescriptions",prescriptionSchema);
 
-app.get('/patients/:id',async (req,res)=>{
-    // const patient= await Patient.find();
-    // if(patient)
-    // res.status(201).send(patient);
-    // else{
-    //     res.status(404).send({
-    //         message:"NO data",
-    //     })
-    // }
+// Check 
+app.get('/',(req,res)=>
+{
+    res.send("Welcome to MongoDB");
+});
+
+//  Patient
+//  Get Specific patients
+app.get('/api/patients/:id',async (req,res)=>{
+
+  
     const id =req.params.id;
     const products= await Patient.find({_id:id});
     res.send(products)
-})
+});
 
-app.post("/patients",async (req,res)=>
+//  Get All Patients
+app.get('/api/patients',async (req,res)=>{
+    const patient= await Patient.find();
+    if(patient)
+    res.status(201).send(patient);
+    else{
+        res.status(404).send({
+            message:"NO data",
+        })
+    }
+
+});
+
+// Insert a Patient
+app.post("/api/patients",async (req,res)=>
 {
     try{
         const newPatient= new Patient({
             name:req.body.name,
             email:req.body.email,
             password:req.body.password,
-            weight:req.body.weight,
+            notification:req.body.notification,
             height:req.body.height,
+            weight:req.body.weight,
             age:req.body.age,
             gender:req.body.gender,
             contactNumber:req.body.contactNumber,
-            dateOfBirth:req.body.dateOfBirth
+            dateOfBirth:req.body.dateOfBirth,
+            medicalHistory:req.body.medicalHistory,
+
         });
         const patientData= await newPatient.save();
         res.status(201).send(patientData);
@@ -118,161 +181,318 @@ app.post("/patients",async (req,res)=>
     }
 });
 
+// Delete a patients
+app.delete('/api/patients/:id', async(req, res) => {
+    try {
+        const id = req.params.id;
+        const patient=await Patient.deleteOne({_id:id});
+
+        if(patient) 
+        res.status(200).send({success:true,message:"Deleted Patient id Successfully",data:patient});
+    else
+    res.status(404).send({success:false,message:"No patient found"});
+    } catch (error) {
+        res.status(500).send({message:error.message});
+  
+    }
 
 
-app.post('/api/doctors', (req, res) => {
-    const doctor = req.body;
-    db.collection('doctors').insertOne(doctor, (err, result) => {
-        if (err) {
-            console.error('Error inserting doctor:', err);
-            res.status(500).send('Error inserting doctor');
-            return;
-        }
-        res.status(201).send('Doctor inserted successfully');
-    });
+  
 });
+
+// Get a specific doctor
+app.get('/api/doctors/:id',async (req,res)=>{
+
+  
+    const id =req.params.id;
+    const products= await Doctor.find({_id:id});
+    res.send(products)
+});
+
+
+// Get all doctors
+app.get('/api/doctors',async (req,res)=>{
+    const patient= await Doctor.find();
+    if(doctor)
+    res.status(201).send(doctor);
+    else{
+        res.status(404).send({
+            message:"NO data",
+        })
+    }
+
+});
+
+
+// Insert a doctor
+app.post("/api/doctors",async (req,res)=>
+{
+    try{
+        const newDoctor= new Doctor({
+            name:req.body.name,
+            notification:req.body.notification,
+            adress:req.body.adress,
+            rating:req.body.rating,
+            reviews:req.body.reviews,
+            bmdcRegistrationNumber:req.body. bmdcRegistrationNumber,
+            qualification:req.body.qualification,
+            about:req.body.about,
+            exprience:req.body.exprience,
+            medicalSpecialty:req.body.medicalSpecialty,
+            appointment:req.body.appointment,
+            email:req.body.email,
+            password:req.body.password,
+            weight:req.body.weight,
+            height:req.body.height,
+            age:req.body.age,
+            gender:req.body.gender,
+            contactNumber:req.body.contactNumber,
+            dateOfBirth:req.body.dateOfBirth,
+
+        });
+        const doctorData= await newDoctor.save();
+        res.status(201).send(doctorData);
+    }
+    catch(error)
+    {
+        res.status(500).send({message:error.message});
+    }
+});
+
+
+
+
+
+
 
 // Delete a doctor
-app.delete('/api/doctors/:id', (req, res) => {
-    const id = req.params.id;
-    db.collection('doctors').deleteOne({ _id: id }, (err, result) => {
-        if (err) {
-            console.error('Error deleting doctor:', err);
-            res.status(500).send('Error deleting doctor');
-            return;
-        }
-        res.status(200).send('Doctor deleted successfully');
-    });
+app.delete('/api/doctors/:id', async(req, res) => {
+    try {
+        const id = req.params.id;
+        const doctor= await Doctor.deleteOne({_id:id});
+
+        if (doctor)
+        res.status(200).send({success:true,message:"Deleted Successfully",data:doctor});
+    else
+    res.status(404).send({success:true,message:"No doctor found"});
+    } catch (error) {
+        res.status(500).send({message:error.message});
+    }
+ 
 });
+
 
 // Update a doctor
-app.put('/api/doctors/:id', (req, res) => {
-    const id = req.params.id;
-    const updatedDoctor = req.body;
-    db.collection('doctors').updateOne({ _id: id }, { $set: updatedDoctor }, (err, result) => {
-        if (err) {
-            console.error('Error updating doctor:', err);
-            res.status(500).send('Error updating doctor');
-            return;
-        }
-        res.status(200).send('Doctor updated successfully');
-    });
-});
-app.get('/',(req,res)=>
-{
-    res.send("Welcome to MongoDB");
-})
-// Get all doctors
-app.get('/api/doctors', (req, res) => {
-    db.collection('doctors').find({}).toArray((err, doctors) => {
-        if (err) {
-            console.error('Error getting all doctors:', err);
-            res.status(500).send('Error getting all doctors');
-            return;
-        }
-        res.status(200).json(doctors);
-    });
+app.put('/api/doctors/:id',async (req, res) => {
+    try{
+        const id=req.params.id;
+        const name=req.body.name;
+        const notification=req.body.notification;
+        const adress=req.body.adress;
+        const rating= req.body.rating;
+        const reviews=req.body.reviews;
+        const bmdcRegistrationNumber=req.body. bmdcRegistrationNumber;
+        const qualification=req.body.qualification;
+        const about=req.body.about;
+        const exprience=req.body.exprience;
+        const medicalSpecialty=req.body.medicalSpecialty;
+        const appointment=req.body.appointment;
+        const email=req.body.email;
+        const password=req.body.password;
+        const weight=req.body.weight;
+        const height=req.body.height;
+        const age=req.body.age;
+        const gender=req.body.gender;
+        const contactNumber=req.body.contactNumber;
+        const dateOfBirth=req.body.dateOfBirth;
+
+        const updateDoctor= await Doctor.updateOne({_id:id},
+            {
+                $set:
+                {
+                    name:req.body.name,
+                    notification:req.body.notification,
+                    adress:req.body.adress,
+                    rating:req.body.rating,
+                    reviews:req.body.reviews,
+                    bmdcRegistrationNumber:req.body. bmdcRegistrationNumber,
+                    qualification:req.body.qualification,
+                    about:req.body.about,
+                    exprience:req.body.exprience,
+                    medicalSpecialty:req.body.medicalSpecialty,
+                    appointment:req.body.appointment,
+                    email:req.body.email,
+                    password:req.body.password,
+                    weight:req.body.weight,
+                    height:req.body.height,
+                    age:req.body.age,
+                    gender:req.body.gender,
+                    contactNumber:req.body.contactNumber,
+                    dateOfBirth:req.body.dateOfBirth,
+                },
+            },
+            {
+                new:true
+            }
+    );
+    if(updateDoctor)res.status(200).send({success:true,message:"Updated Doctor Data",data:updateDoctor});
+    else{
+        res.status(404).send({
+            message:"No Doctor found",
+        });
+    }
+    
+        
+    }
+    catch(error)
+    {
+        res.status(500).send({message:error.message});
+    }
+   
+   
 });
 
-// Get a doctor by ID
-app.get('/api/doctors/:id', (req, res) => {
-    const id = req.params.id;
-    db.collection('doctors').findOne({ _id: id }, (err, doctor) => {
-        if (err) {
-            console.error('Error getting doctor by ID:', err);
-            res.status(500).send('Error getting doctor by ID');
-            return;
-        }
-        res.status(200).json(doctor);
-    });
-});
 
-// Insert a patient, and implement other routes similarly
-// ...
 
-// Start the server
 app.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);
     await connectDB();
 });
-// Insert a patient
-app.post('/api/patients', (req, res) => {
-    const patient = req.body;
-    db.collection('patients').insertOne(patient, (err, result) => {
-        if (err) {
-            console.error('Error inserting patient:', err);
-            res.status(500).send('Error inserting patient');
-            return;
+
+
+
+app.put('/api/patients/:id', async(req, res) => {
+ try {
+    const id=req.params.id;
+    const  name=req.body.name;
+    const  email=req.body.email;
+    const  password=req.body.password;
+    const  contactNumber=req.body.contactNumber;
+    const  notification=req.body.notification;
+    const  height=req.body.height;
+    const  weight=req.body.weight;
+    const  age=req.body.age;
+    const  gender=req.body.gender;
+    const  dateOfBirth=req.body.dateOfBirth;
+    const  medicalHistory=req.body.medicalHistory;
+
+    const updatePatient= await Patient.findByIdAndUpdate({_id:id},
+        {
+            $set:
+            {
+                name:req.body.name,
+                email:req.body.email,
+                password:req.body.password,
+                notification:req.body.notification,
+                height:req.body.height,
+                weight:req.body.weight,
+                age:req.body.age,
+                gender:req.body.gender,
+                contactNumber:req.body.contactNumber,
+                dateOfBirth:req.body.dateOfBirth,
+                medicalHistory:req.body.medicalHistory,
+            },
+
+        },
+        {
+            new :true
+        });  
+        if(updatePatient)
+        res.status(200).send({success:true,message:"Updated Patient",data:updatedProduct});
+        else{
+            res.status(404).send({
+                message:"No Patient found",
+            });
         }
-        res.status(201).send('Patient inserted successfully');
-    });
+
+} catch (error) {
+    res.status(500).send({message:error.message});
+}
 });
 
-// Delete a patient
-app.delete('/api/patients/:id', (req, res) => {
-    const id = req.params.id;
-    db.collection('patients').deleteOne({ _id: id }, (err, result) => {
-        if (err) {
-            console.error('Error deleting patient:', err);
-            res.status(500).send('Error deleting patient');
-            return;
-        }
-        res.status(200).send('Patient deleted successfully');
-    });
-});
 
-// Update a patient
-app.put('/api/patients/:id', (req, res) => {
-    const id = req.params.id;
-    const updatedPatient = req.body;
-    db.collection('patients').updateOne({ _id: id }, { $set: updatedPatient }, (err, result) => {
-        if (err) {
-            console.error('Error updating patient:', err);
-            res.status(500).send('Error updating patient');
-            return;
-        }
-        res.status(200).send('Patient updated successfully');
-    });
-});
 
 // Insert an appointment
-app.post('/api/appointments', (req, res) => {
-    const appointment = req.body;
-    db.collection('appointments').insertOne(appointment, (err, result) => {
-        if (err) {
-            console.error('Error inserting appointment:', err);
-            res.status(500).send('Error inserting appointment');
-            return;
-        }
-        res.status(201).send('Appointment inserted successfully');
-    });
+app.post('/api/appointments', async(req, res) => {
+    try {
+        const newAppointment= new Appointment({
+            patient:req.body.patient,
+            doctor:req.body.doctor,
+            prescription:req.body.prescription,
+            appointmentDate:req.date.appointmentDate,
+            status:req.body.status,
+            rating:req.body.rating,
+            review:req.body.review,
+            notes:req.body.notes,
+        });
+        const appointmentData= await newAppointment.save();
+        res.status(201).send(appointmentData);
+    } catch (error) {
+        res.status(500).send({message:error.message});
+    }
 });
 
 // Delete an appointment
-app.delete('/api/appointments/:id', (req, res) => {
-    const id = req.params.id;
-    db.collection('appointments').deleteOne({ _id: id }, (err, result) => {
-        if (err) {
-            console.error('Error deleting appointment:', err);
-            res.status(500).send('Error deleting appointment');
-            return;
+app.delete('/api/appointments/:id', async(req, res) => {
+
+    try {
+        const id =req.params.id;
+        const appointment= await Appointment.deleteOne({_id:id});
+        if(appointment)
+        res.status(200).send({success:true,message:"Deleted Appointment Successfully",data:appointment});
+        else
+        res.status(404).send({success:true,message:"No appointment found"});
+        } catch (error) {
+            res.status(500).send({message:error.message});
         }
-        res.status(200).send('Appointment deleted successfully');
-    });
+     
+        
+
 });
 
 // Update an appointment
-app.put('/api/appointments/:id', (req, res) => {
-    const id = req.params.id;
-    const updatedAppointment = req.body;
-    db.collection('appointments').updateOne({ _id: id }, { $set: updatedAppointment }, (err, result) => {
-        if (err) {
-            console.error('Error updating appointment:', err);
-            res.status(500).send('Error updating appointment');
-            return;
-        }
-        res.status(200).send('Appointment updated successfully');
-    });
+app.put('/api/appointments/:id', async(req, res) => {
+    try {
+        const id =req.params.id;
+        const patient=req.body.patient;
+        const doctor=req.body.doctor;
+        const prescription=req.body.prescription;
+        const appointmentDate=req.date.appointmentDate;
+        const status=req.body.status;
+        const rating=req.body.rating;
+        const review=req.body.review;
+        const notes=req.body.notes;
+        const updateAppointment=await Appointment.updateOne({_id:id},
+            {
+                $set:
+                {
+                    patient:req.body.patient,
+                    doctor:req.body.doctor,
+                    prescription:req.body.prescription,
+                    appointmentDate:req.date.appointmentDate,
+                    status:req.body.status,
+                    rating:req.body.rating,
+                    review:req.body.review,
+                    notes:req.body.notes,
+                },
+            },
+            {
+                new:true
+            }
+            );
+            if(updateAppointment)res.status(200).send({success:true,message:"Updated Appointment Data",data:updateDoctor});
+            else{
+                res.status(404).send({
+                    message:"No Appointment found",
+                });
+            }
+            
+                
+            }
+            catch(error)
+            {
+                res.status(500).send({message:error.message});
+            }
 });
 
 // Authenticate user as patient
@@ -284,23 +504,3 @@ app.post('/api/authenticate/patient', (req, res) => {
 app.post('/api/authenticate/doctor', (req, res) => {
     // Your implementation for authenticating a user as doctor
 });
-0 comments on commit 0171f3c
-@Khalidgithub2020331007
-Comment
-
-Leave a comment
-
-You’re receiving notifications because you’re watching this repository.
-Footer
-© 2024 GitHub, Inc.
-Footer navigation
-
-    Terms
-    Privacy
-    Security
-    Status
-    Docs
-    Contact
-
-@@ -1,255 +0,0 @@ const express = require('express'); const bodyParser = require('body-parser'); const mongoose=require('mongoose'); const app = express(); const PORT = 3000; app.use(bodyParser.json()); app.use(bodyParser.urlencoded({ extended: true })); const patientSchema=new mongoose.Schema({ name:{ type:String, required:true }, email:{ type:String, required:true }, password:{ type:String, required:true }, height:String, weight:Number, age:Number, gender:String, contactNumber:String, dateOfBirth:Date }); const connectDB= async()=> { try { await mongoose.connect('mongodb://localhost:27017/testApp'); console.log("Khalid Successfully connect with mongodb at ",new Date().toLocaleString()); } catch (error) { console.log("DB is not Connected ",error); process.exit(1); } }; const Patient=mongoose.model("Patients",patientSchema); app.get('/patients/:id',async (req,res)=>{ // const patient= await Patient.find(); // if(patient) // res.status(201).send(patient); // else{ // res.status(404).send({ // message:"NO data", // }) // } const id =req.params.id; const products= await Patient.find({_id:id}); res.send(products) }) app.post("/patients",async (req,res)=> { try{ const newPatient= new Patient({ name:req.body.name, email:req.body.email, password:req.body.password, weight:req.body.weight, height:req.body.height, age:req.body.age, gender:req.body.gender, contactNumber:req.body.contactNumber, dateOfBirth:req.body.dateOfBirth }); const patientData= await newPatient.save(); res.status(201).send(patientData); } catch(error) { res.status(500).send({message:error.message}); } }); app.post('/api/doctors', (req, res) => { const doctor = req.body; db.collection('doctors').insertOne(doctor, (err, result) => { if (err) { console.error('Error inserting doctor:', err); res.status(500).send('Error inserting doctor'); return; } res.status(201).send('Doctor inserted successfully'); }); }); // Delete a doctor app.delete('/api/doctors/:id', (req, res) => { const id = req.params.id; db.collection('doctors').deleteOne({ _id: id }, (err, result) => { if (err) { console.error('Error deleting doctor:', err); res.status(500).send('Error deleting doctor'); return; } res.status(200).send('Doctor deleted successfully'); }); }); // Update a doctor app.put('/api/doctors/:id', (req, res) => { const id = req.params.id; const updatedDoctor = req.body; db.collection('doctors').updateOne({ _id: id }, { $set: updatedDoctor }, (err, result) => { if (err) { console.error('Error updating doctor:', err); res.status(500).send('Error updating doctor'); return; } res.status(200).send('Doctor updated successfully'); }); }); app.get('/',(req,res)=> { res.send("Welcome to MongoDB"); }) // Get all doctors app.get('/api/doctors', (req, res) => { db.collection('doctors').find({}).toArray((err, doctors) => { if (err) { console.error('Error getting all doctors:', err); res.status(500).send('Error getting all doctors'); return; } res.status(200).json(doctors); }); }); // Get a doctor by ID app.get('/api/doctors/:id', (req, res) => { const id = req.params.id; db.collection('doctors').findOne({ _id: id }, (err, doctor) => { if (err) { console.error('Error getting doctor by ID:', err); res.status(500).send('Error getting doctor by ID'); return; } res.status(200).json(doctor); }); }); // Insert a patient, and implement other routes similarly // ... // Start the server app.listen(PORT, async () => { console.log(`Server is running on port ${PORT}`); await connectDB(); }); // Insert a patient app.post('/api/patients', (req, res) => { const patient = req.body; db.collection('patients').insertOne(patient, (err, result) => { if (err) { console.error('Error inserting patient:', err); res.status(500).send('Error inserting patient'); return; } res.status(201).send('Patient inserted successfully'); }); }); // Delete a patient app.delete('/api/patients/:id', (req, res) => { const id = req.params.id; db.collection('patients').deleteOne({ _id: id }, (err, result) => { if (err) { console.error('Error deleting patient:', err); res.status(500).send('Error deleting patient'); return; } res.status(200).send('Patient deleted successfully'); }); }); // Update a patient app.put('/api/patients/:id', (req, res) => { const id = req.params.id; const updatedPatient = req.body; db.collection('patients').updateOne({ _id: id }, { $set: updatedPatient }, (err, result) => { if (err) { console.error('Error updating patient:', err); res.status(500).send('Error updating patient'); return; } res.status(200).send('Patient updated successfully'); }); }); // Insert an appointment app.post('/api/appointments', (req, res) => { const appointment = req.body; db.collection('appointments').insertOne(appointment, (err, result) => { if (err) { console.error('Error inserting appointment:', err); res.status(500).send('Error inserting appointment'); return; } res.status(201).send('Appointment inserted successfully'); }); }); // Delete an appointment app.delete('/api/appointments/:id', (req, res) => { const id = req.params.id; db.collection('appointments').deleteOne({ _id: id }, (err, result) => { if (err) { console.error('Error deleting appointment:', err); res.status(500).send('Error deleting appointment'); return; } res.status(200).send('Appointment deleted successfully'); }); }); // Update an appointment app.put('/api/appointments/:id', (req, res) => { const id = req.params.id; const updatedAppointment = req.body; db.collection('appointments').updateOne({ _id: id }, { $set: updatedAppointment }, (err, result) => { if (err) { console.error('Error updating appointment:', err); res.status(500).send('Error updating appointment'); return; } res.status(200).send('Appointment updated successfully'); }); }); // Authenticate user as patient app.post('/api/authenticate/patient', (req, res) => { // Your implementation for authenticating a user as patient }); // Authenticate user as doctor app.post('/api/authenticate/doctor', (req, res) => { // Your implementation for authenticating a user as doctor });
- 
