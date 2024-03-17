@@ -131,6 +131,13 @@ app.get('/',(req,res)=>
     res.send("Welcome to MongoDB");
 });
 
+//  Connect
+app.listen(PORT, async () => {
+    console.log(`Server is running on port ${PORT}`);
+    await connectDB();
+});
+
+
 //  Patient
 //  Get Specific patients
 app.get('/api/patients/:id',async (req,res)=>{
@@ -199,6 +206,58 @@ app.delete('/api/patients/:id', async(req, res) => {
 
   
 });
+
+// Update Patient
+app.put('/api/patients/:id', async(req, res) => {
+    try {
+       const id=req.params.id;
+       const  name=req.body.name;
+       const  email=req.body.email;
+       const  password=req.body.password;
+       const  contactNumber=req.body.contactNumber;
+       const  notification=req.body.notification;
+       const  height=req.body.height;
+       const  weight=req.body.weight;
+       const  age=req.body.age;
+       const  gender=req.body.gender;
+       const  dateOfBirth=req.body.dateOfBirth;
+       const  medicalHistory=req.body.medicalHistory;
+   
+       const updatePatient= await Patient.findByIdAndUpdate({_id:id},
+           {
+               $set:
+               {
+                   name:req.body.name,
+                   email:req.body.email,
+                   password:req.body.password,
+                   notification:req.body.notification,
+                   height:req.body.height,
+                   weight:req.body.weight,
+                   age:req.body.age,
+                   gender:req.body.gender,
+                   contactNumber:req.body.contactNumber,
+                   dateOfBirth:req.body.dateOfBirth,
+                   medicalHistory:req.body.medicalHistory,
+               },
+   
+           },
+           {
+               new :true
+           });  
+           if(updatePatient)
+           res.status(200).send({success:true,message:"Updated Patient",data:updatedProduct});
+           else{
+               res.status(404).send({
+                   message:"No Patient found",
+               });
+           }
+   
+   } catch (error) {
+       res.status(500).send({message:error.message});
+   }
+   });
+   
+   
 
 // Get a specific doctor
 app.get('/api/doctors/:id',async (req,res)=>{
@@ -354,61 +413,7 @@ app.put('/api/doctors/:id',async (req, res) => {
 
 
 
-app.listen(PORT, async () => {
-    console.log(`Server is running on port ${PORT}`);
-    await connectDB();
-});
 
-
-
-app.put('/api/patients/:id', async(req, res) => {
- try {
-    const id=req.params.id;
-    const  name=req.body.name;
-    const  email=req.body.email;
-    const  password=req.body.password;
-    const  contactNumber=req.body.contactNumber;
-    const  notification=req.body.notification;
-    const  height=req.body.height;
-    const  weight=req.body.weight;
-    const  age=req.body.age;
-    const  gender=req.body.gender;
-    const  dateOfBirth=req.body.dateOfBirth;
-    const  medicalHistory=req.body.medicalHistory;
-
-    const updatePatient= await Patient.findByIdAndUpdate({_id:id},
-        {
-            $set:
-            {
-                name:req.body.name,
-                email:req.body.email,
-                password:req.body.password,
-                notification:req.body.notification,
-                height:req.body.height,
-                weight:req.body.weight,
-                age:req.body.age,
-                gender:req.body.gender,
-                contactNumber:req.body.contactNumber,
-                dateOfBirth:req.body.dateOfBirth,
-                medicalHistory:req.body.medicalHistory,
-            },
-
-        },
-        {
-            new :true
-        });  
-        if(updatePatient)
-        res.status(200).send({success:true,message:"Updated Patient",data:updatedProduct});
-        else{
-            res.status(404).send({
-                message:"No Patient found",
-            });
-        }
-
-} catch (error) {
-    res.status(500).send({message:error.message});
-}
-});
 
 
 
