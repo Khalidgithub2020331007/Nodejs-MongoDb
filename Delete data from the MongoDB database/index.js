@@ -94,7 +94,8 @@ app.delete("/products/:id",async(req,res)=>
         const id=req.params.id;
         //const product=await Product.deleteOne({_id:id}); // for only delet 
 
-        const product=await Product.findByIdAndDelete({_id:id});
+        const product=await Product.findByIdAndDelete({_id:id});  // for delet and show the delete the value
+        
         if(product)
         res.status(200).send({success:true,message:"Deleted Successfully",data:product});
     else
