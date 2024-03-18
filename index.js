@@ -12,7 +12,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const patientSchema=new mongoose.Schema({
     name:{
         type:String,
-        required:true
     },
     email:{
         type:String,
@@ -512,12 +511,40 @@ app.put('/api/appointments/:id', async(req, res) => {
             }
 });
 
+
 // Authenticate user as patient
-app.post('/api/authenticate/patient', (req, res) => {
-    // Your implementation for authenticating a user as patient
+
+app.get('/api/authenticate/patient', async(req, res) => {
+    try {
+        const {email,password}=req.body;
+        const userPatient= await Patient.findOne({email:email});
+        if(userPatient && userPatient.password=== password)
+        {
+            res.status(200).send(userPatient);
+
+        }
+        else{
+            res.send("NO Patient found");
+        }
+    } catch (error) {
+        res.status(500).json(error.message);
+    }
 });
 
 // Authenticate user as doctor
-app.post('/api/authenticate/doctor', (req, res) => {
-    // Your implementation for authenticating a user as doctor
+app.get('/api/authenticate/doctor', async(req, res) => {
+    try {
+        const {email,password}=req.body;
+        const userDoctor= await Doctor.findOne({email:email});
+        if(userDoctor && userDoctor.password=== password)
+        {
+            res.status(200).send(userDoctor);
+
+        }
+        else{
+            res.send("NO Doctor found");
+        }
+    } catch (error) {
+        res.status(500).json(error.message);
+    }
 });
