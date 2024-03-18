@@ -1,0 +1,95 @@
+package com.example.doctors_appointment
+
+import android.content.Context
+import android.os.Bundle
+import android.widget.DatePicker
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.doctors_appointment.util.Screen
+import com.example.doctors_appointment.ui.CheckUser
+import com.example.doctors_appointment.ui.DoctorNavBar
+import com.example.doctors_appointment.ui.HomePage
+import com.example.doctors_appointment.ui.SignIn
+import com.example.doctors_appointment.ui.SignUp
+import com.example.doctors_appointment.ui.SignInViewModel
+import com.example.doctors_appointment.ui.SignUpViewModel
+import com.example.doctors_appointment.ui.patientsUI.NavBar
+import dagger.hilt.android.AndroidEntryPoint
+import java.util.Calendar
+import java.util.Date
+
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+
+
+      showDatePick(context = this)
+            }
+        }
+    }
+
+@Composable
+fun showDatePick(context: Context)
+{
+    val year:Int
+    val month:Int
+    val day:Int
+
+    val calendar= Calendar.getInstance()
+    year=calendar.get(Calendar.YEAR)
+    month=calendar.get(Calendar.MONTH)
+    day=calendar.get(Calendar.DAY_OF_MONTH)
+    calendar.time= Date()
+
+    val date= remember {
+        mutableStateOf("")
+    }
+    val datePickerDialog= android.app.DatePickerDialog(
+        context,
+        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+            date.value = "$dayOfMonth/$month/$year"
+        }, year, month, day
+
+    )
+
+    Column(
+        modifier= Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Spacer(modifier= Modifier.size(16.dp))
+        Button(onClick = {datePickerDialog.show()})
+        {
+            Text(text="Open Date Picker")
+
+        }
+        Text(text = "Selected Date: ${date.value}")
+    }
+
+
+
+}
